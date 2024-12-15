@@ -42,10 +42,22 @@ async function run() {
         app.get('/allVocabulary/:id', async (req, res) => {
             const id = req.params.id
             // const query = { _id: new ObjectId(id) }
-            const query = { _id: id}
+            const query = { _id: id }
             const result = await allVocabularyDb.findOne(query)
             res.send(result)
         })
+        // getting a specific data(based on difficulty) from database (api)
+        app.get('/allVocabulary/difficulty/:type', async (req, res) => {
+            const type = req.params.type
+            const query = { difficulty: type }; 
+            const result = await allVocabularyDb.find(query).toArray(); 
+            res.send(result)
+        })
+
+
+
+
+
 
         // Send a ping to confirm a successful connection
         // await client.db("admin").command({ ping: 1 });

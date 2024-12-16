@@ -28,6 +28,8 @@ async function run() {
         // await client.connect();
 
         const allVocabularyDb = client.db("VocabularyLearningServer").collection('allVocabulary')
+        const completedWordDb = client.db("VocabularyLearningServer").collection('completedVocabulary')
+
 
         await allVocabularyDb.insertOne({ word: "Geduld", meaning: "patience" });
 
@@ -49,10 +51,19 @@ async function run() {
         // getting a specific data(based on difficulty) from database (api)
         app.get('/allVocabulary/difficulty/:type', async (req, res) => {
             const type = req.params.type
-            const query = { difficulty: type }; 
-            const result = await allVocabularyDb.find(query).toArray(); 
+            const query = { difficulty: type };
+            const result = await allVocabularyDb.find(query).toArray();
             res.send(result)
         })
+        // storing data in database
+        app.post('/completedWords', async (req, res) => {
+            const allVocabularyDb = req.body
+            allVocabularyDb.createdAt = new Date()
+            const result = await completedWordDb.insertMany(allVocabularyDb)
+            // console.log(result)
+            res.send(result)
+        })
+        
 
 
 

@@ -31,8 +31,8 @@ async function run() {
         const completedWordDb = client.db("VocabularyLearningServer").collection('completedVocabulary')
 
 
-        await allVocabularyDb.insertOne({ word: "Geduld", meaning: "patience" });
 
+        // allVocabularyDb--------------------------------------------
 
         // getting all data from database (api)
         app.get('/allVocabulary', async (req, res) => {
@@ -55,15 +55,37 @@ async function run() {
             const result = await allVocabularyDb.find(query).toArray();
             res.send(result)
         })
+
+        // completedWordDb-----------------------------------------------
+
         // storing data in database
         app.post('/completedWords', async (req, res) => {
-            const allVocabularyDb = req.body
-            allVocabularyDb.createdAt = new Date()
-            const result = await completedWordDb.insertMany(allVocabularyDb)
-            // console.log(result)
+            const completedWordsData = req.body
+            // Check for existing words and insert only new ones
+            const insertPromises = completedWordsData.map(async (word) => {
+                // Check if the word already exists for the user
+                const exists = await completedWordDb.findOne({
+                    wordId: word.wordId,
+                    email: word.email, // Ensure uniqueness per user
+                });
+
+                if (!exists) {
+                    // If it doesn't exist, prepare for insertion
+                    return {
+                        ...word,
+                        createdAt: new Date(), // Add created timestamp
+                    };
+                }
+            });
+            // Resolve all promises and filter out undefined (existing) entries
+            const newWords = (await Promise.all(insertPromises)).filter(Boolean);
+            if (newWords.length === 0) {
+                return
+            }
+            const result = await completedWordDb.insertMany(newWords);
             res.send(result)
         })
-        
+
 
 
 

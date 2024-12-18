@@ -85,6 +85,28 @@ async function run() {
             const result = await completedWordDb.insertMany(newWords);
             res.send(result)
         })
+        // Deleting all completed data
+        app.post('/completedWords/deleteAll', async (req, res) => {
+            const allIds = req.body;
+            // console.log(allIds)
+            // Construct the $or query for deletion
+            const deleteFilter = {
+                $or: allIds.map((word) => ({
+                    wordId: word.wordId,
+                    email: word.email,
+                })),
+            };
+            console.log("abcd")
+            const result = await completedWordDb.deleteMany(deleteFilter)
+            res.send(result)
+        })
+        // Deleting single completed data
+        app.delete('/completedWords/:id', async (req, res) => {
+            const id = req.params.id;
+            const result = await completedWordDb.deleteOne({ wordId: id });
+            res.send(result)
+        })
+
 
 
 

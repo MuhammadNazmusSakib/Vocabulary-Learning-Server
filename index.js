@@ -96,7 +96,6 @@ async function run() {
                     email: word.email,
                 })),
             };
-            console.log("abcd")
             const result = await completedWordDb.deleteMany(deleteFilter)
             res.send(result)
         })
@@ -104,6 +103,13 @@ async function run() {
         app.delete('/completedWords/:id', async (req, res) => {
             const id = req.params.id;
             const result = await completedWordDb.deleteOne({ wordId: id });
+            res.send(result)
+        })
+        // getting completed words based on different email id
+        app.get('/completedWords/email/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email }; // Use email directly in the query
+            const result = await completedWordDb.find(query).toArray(); // Retrieve all applications for the email
             res.send(result)
         })
 

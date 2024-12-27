@@ -17,12 +17,12 @@ const verifyToken = (req, res, next) => {
     const token = req.cookies?.token
 
     if (!token) {
-        return res.status(401).send({message: 'Unauthorized access.'})
+        return res.status(401).send({ message: 'Unauthorized access.' })
     }
     // verify the token
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if(err) {
-            return res.status(401).send({message: 'Unauthorized access.'})
+        if (err) {
+            return res.status(401).send({ message: 'Unauthorized access.' })
         }
         req.user = decoded
         next()
@@ -97,7 +97,7 @@ async function run() {
             const type = req.params.type
             const query = { difficulty: type };
 
-           
+
 
             const result = await allVocabularyDb.find(query).toArray();
             res.send(result)
@@ -152,14 +152,21 @@ async function run() {
             const result = await completedWordDb.deleteOne({ wordId: id });
             res.send(result)
         })
-        // getting completed words based on different email id
-        app.get('/completedWords/email/:email', verifyToken, async (req, res) => {
+        // getting completed words based on different email id and with an optional difficulty filter
+        app.get('/completedWords/email/:email/:difficulty?', verifyToken, async (req, res) => {
             const email = req.params.email
+            const difficulty = req.params.difficulty
+
             const query = { email: email }; // Use email directly in the query
+
+            if (difficulty) {
+                query.difficulty = difficulty
+            }
+
 
             // checking token email and query email
             if (req.user.email !== req.params.email) {
-                return res.status(401).send({message: 'Unauthorized access.'})
+                return res.status(401).send({ message: 'Unauthorized access.' })
             }
 
             const result = await completedWordDb.find(query).toArray(); // Retrieve all applications for the email

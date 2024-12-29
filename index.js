@@ -6,10 +6,16 @@ const cookieParser = require('cookie-parser')
 const app = express()
 const port = process.env.PORT || 5000
 
-app.use(cors({
-    origin: ['http://localhost:5173'],
-    credentials: true
-}))
+app.use(
+    cors({
+        origin: [
+            "http://localhost:5173",
+            "https://lingo-bingo-27ebf.web.app",
+            "https://lingo-bingo-27ebf.firebaseapp.com",
+        ],
+        credentials: true,
+    })
+);
 app.use(express.json())
 app.use(cookieParser())
 
@@ -61,7 +67,8 @@ async function run() {
             })
             res.cookie('token', token, {
                 httpOnly: true,
-                secure: false
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
             })
                 .send({ success: true })
         })
@@ -69,7 +76,8 @@ async function run() {
         app.post('/logout', (req, res) => {
             res.clearCookie('token', {
                 httpOnly: true,
-                secure: false
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
             })
                 .send({ success: true })
         })
